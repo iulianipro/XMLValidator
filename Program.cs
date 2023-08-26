@@ -1,23 +1,39 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+uusing System;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml;
 
-namespace XMLValidator
+public class XmlVerifier
 {
-    static class Program
+    public static void VerifyAndDeleteNonAlphabeticContent(string filePath)
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        try
         {
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            // Load the XML file
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(filePath);
+
+            // Get all text nodes in the XML document
+            XmlNodeList textNodes = xmlDoc.SelectNodes("//text()");
+
+            // Iterate through each text node
+            foreach (XmlNode textNode in textNodes)
+            {
+                // Remove any non-alphabetic characters using regular expression
+                string cleanedText = Regex.Replace(textNode.InnerText, "[^a-zA-Z]", "");
+
+                // Update the text node with the cleaned text
+                textNode.InnerText = cleanedText;
+            }
+
+            // Save the modified XML document
+            xmlDoc.Save(filePath);
+
+            Console.WriteLine("XML file verified and non-alphabetic content deleted successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error occurred while verifying XML file: " + ex.Message);
         }
     }
 }
